@@ -40,7 +40,6 @@
     .user { background: var(--primary-color); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
     .bot { background: #ffffff; color: var(--text-dark); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border-color); box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
     
-    /* Formatting fallback rule for bold items inside innerHTML context */
     .bot b, .bot strong { font-weight: 700; color: #000000; }
 
     .typing-indicator { display: none; align-self: flex-start; background: #ffffff; border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 18px; border-bottom-left-radius: 4px; }
@@ -178,8 +177,12 @@
         msgDiv.classList.add('message', sender);
         
         if (sender === 'bot') {
-          // Robust regex safely targets **markdown** bold items without impacting standard HTML brackets
+          // 1. Parse markdown bold blocks (**text**) into HTML strong tags safely
           let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+          
+          // 2. Parse markdown link blocks [Text](URL) into clickable HTML anchor tags
+          formattedText = formattedText.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: #0066fe; font-weight: 600; text-decoration: underline;">$1</a>');
+          
           msgDiv.innerHTML = formattedText;
         } else {
           msgDiv.textContent = text;
