@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Secure Assistant</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    :root {
+      --primary-color: #0066fe;
+      --primary-hover: #0052cc;
+      --bg-color: #f7f9fc;
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+      --chat-bg: #ffffff;
+      --border-color: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body, html {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color); color: var(--text-dark); overflow: hidden;
+    }
+
+    #login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 24px; text-align: center; }
+    .login-card { background: #ffffff; padding: 40px 32px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 400px; width: 100%; border: 1px solid var(--border-color); }
+    .login-card h2 { margin: 0 0 12px 0; font-size: 1.6rem; font-weight: 700; }
+    .login-card p { color: var(--text-light); font-size: 0.95rem; margin: 0 0 32px 0; line-height: 1.5; }
+
+    #chat-container { display: none; flex-direction: column; width: 100%; height: 100%; background: var(--chat-bg); }
+    #chat-header { background: #ffffff; color: var(--text-dark); padding: 16px 20px; font-size: 1.05rem; font-weight: 600; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; }
+    .status-dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; }
+
+    #chat-messages { flex: 1; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 16px; background-color: #f8fafc; }
+    .message { max-width: 85%; padding: 12px 16px; border-radius: 18px; line-height: 1.45; font-size: 0.95rem; word-break: break-word; white-space: pre-line; animation: fadeIn 0.2s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .user { background: var(--primary-color); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .bot { background: #ffffff; color: var(--text-dark); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border-color); box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    
+    /* Formatting fallback rule for bold items inside innerHTML context */
+    .bot b, .bot strong { font-weight: 700; color: #000000; }
+
+    .typing-indicator { display: none; align-self: flex-start; background: #ffffff; border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 18px; border-bottom-left-radius: 4px; }
+    .typing-dot { display: inline-block; width: 6px; height: 6px; background: var(--text-light); border-radius: 50%; opacity: 0.4; animation: wave 1.3s linear infinite; margin-right: 2px; }
+    .typing-dot:nth-child(2) { animation-delay: -1.1s; }
+    .typing-dot:nth-child(3) { animation-delay: -0.9s; }
+    @keyframes wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+
+    #chat-input-area { display: flex; padding: 14px 16px; border-top: 1px solid var(--border-color); background: #ffffff; align-items: center; }
+    #message-input { flex: 1; padding: 12px 16px; border: 1px solid var(--border-color); background-color: #f1f5f9; border-radius: 24px; font-size: 1rem; outline: none; color: var(--text-dark); }
+    #message-input:focus { border-color: #cbd5e1; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(0, 102, 254, 0.08); }
+    #send-btn { background: var(--primary-color); color: white; border: none; width: 44px; height: 44px; margin-left: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+    #send-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    #send-btn svg { width: 18px; height: 18px; fill: currentColor; transform: translateX(1px); }
+  </style>
+</head>
+<body>
+
+  <div id="login-container">
+    <div class="login-card">
+      <h2>Secure Portal</h2>
+      <p>Authenticate with your company Google Account to initialize the support agent.</p>
+      <div style="display: flex; justify-content: center;" id="buttonDiv"></div>
+    </div>
+  </div>
+
+  <div id="chat-container">
+    <div id="chat-header">
+      <span class="status-dot"></span>
+      <span>Support Assistant</span>
+    </div>
+    <div id="chat-messages">
+      <div class="message bot">Hello! I am initialized and ready. How can I assist you today?</div>
+      <div class="typing-indicator" id="typingIndicator">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
+    <div id="chat-input-area">
+      <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+      <button id="send-btn" aria-label="Send Message">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let userToken = "";
+    const chatMessages = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    async function handleCredentialResponse(response) {
+      userToken = response.credential;
+      try {
+        const authCheck = await fetch('/api/auth-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: userToken })
+        });
+
+        if (authCheck.ok) {
+          document.getElementById('login-container').style.display = 'none';
+          document.getElementById('chat-container').style.display = 'flex';
+          scrollToBottom();
+          setTimeout(() => { messageInput.focus(); }, 300);
+        } else {
+          alert("Authentication failed. Access denied.");
+        }
+      } catch (err) {
+        console.error("Auth check fetch error:", err);
+      }
+    }
+
+    window.onload = function () {
+      try {
+        if (typeof google !== 'undefined' && google.accounts) {
+          google.accounts.id.initialize({
+            client_id: "267047826128-tpso5a3crdce9uj7tnsljos7lm36it84.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+          });
+          google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large", width: "240" }
+          );
+        } else {
+          console.error("Google script not loaded yet.");
+        }
+      } catch (e) {
+        console.error("Initialization error inside window.onload:", e);
+      }
+    };
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      appendMessage(text, 'user');
+      messageInput.value = '';
+      sendBtn.disabled = true;
+      showTyping(true);
+
+      try {
+        const res = await fetch('/api/chat-proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + userToken
+          },
+          body: JSON.stringify({ chatInput: text })
+        });
+
+        if (!res.ok) throw new Error("Connection processing error");
+        
+        const data = await res.json();
+        const botResponse = data.output || data.text || JSON.stringify(data);
+        
+        showTyping(false);
+        appendMessage(botResponse, 'bot');
+      } catch (err) {
+        showTyping(false);
+        appendMessage("System communication timeout. Please try again.", 'bot');
+        console.error("Message send runtime trace error:", err);
+      } finally {
+        sendBtn.disabled = false;
+        if(window.innerWidth > 768) { messageInput.focus(); }
+      }
+    }
+
+    function appendMessage(text, sender) {
+      try {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', sender);
+        
+        if (sender === 'bot') {
+          // Robust regex safely targets **markdown** bold items without impacting standard HTML brackets
+          let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+          msgDiv.innerHTML = formattedText;
+        } else {
+          msgDiv.textContent = text;
+        }
+        
+        chatMessages.insertBefore(msgDiv, typingIndicator);
+        scrollToBottom();
+      } catch (domErr) {
+        console.error("Error inside appendMessage rendering:", domErr);
+      }
+    }
+
+    function showTyping(visible) {
+      if(typingIndicator) { typingIndicator.style.display = visible ? 'block' : 'none'; }
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      setTimeout(() => { if(chatMessages) { chatMessages.scrollTop = chatMessages.scrollHeight; } }, 50);
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+  </script>
+</body>
+</html>
