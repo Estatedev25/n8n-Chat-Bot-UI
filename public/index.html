@@ -61,7 +61,7 @@
   <div id="login-container">
     <div class="login-card">
       <h2>Secure Portal</h2>
-      <p>Authenticate with your company Google Account to initialize the support agent.</p>
+      <p>Authenticate with your Google Account to initialize the support agent.</p>
       <div style="display: flex; justify-content: center;" id="buttonDiv"></div>
     </div>
   </div>
@@ -120,7 +120,7 @@
       try {
         if (typeof google !== 'undefined' && google.accounts) {
           google.accounts.id.initialize({
-            client_id: "267047826128-tpso5a3crdce9uj7tnsljos7lm36it84.apps.googleusercontent.com",
+            client_id: "YOUR-GOOGLE-CLIENT-ID-HERE",
             callback: handleCredentialResponse
           });
           google.accounts.id.renderButton(
