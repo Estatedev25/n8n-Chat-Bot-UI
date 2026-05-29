@@ -1,4 +1,4 @@
-# 🚀 Secure Enterprise AI Assistant Portal (Hosted on Railway)
+# 🚀 Secure GUI For n8n ChatBot (Hosted on Railway)
 
 A secure, mobile-responsive AI chatbot interface designed to be embedded seamlessly inside corporate platforms (like Google Sites). This architecture forces user authentication via Google Identity Services (GIS) and routes traffic through a secure Node.js proxy server hosted on **Railway.app** to completely protect private AI automation endpoints (n8n Cloud).
 
