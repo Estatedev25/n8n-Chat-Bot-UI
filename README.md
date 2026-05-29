@@ -18,7 +18,7 @@ A secure, mobile-responsive AI chatbot interface designed to be embedded seamles
 
 The portal relies on a decoupled, secure triple-tier pipeline:
 
-1.  **Frontend (Client/Google Site Iframe):** Handles user login layouts and updates the chat UI layout dynamically using standard vanilla JavaScript.
+1.  **Frontend (Client):** Handles user login layouts and updates the chat UI layout dynamically using standard vanilla JavaScript.
 2.  **Proxy Server (Railway Application Layer):** Validates incoming client signatures via Google Auth Libraries, signs permissions, blocks malicious cross-origin requests, and appends user identity properties before forwarding requests.
 3.  **Automation Engine (n8n Cloud Workflow):** Executes advanced AI agent behaviors, processes historical vector databases, and surfaces calculations natively over direct REST parameters.
 
